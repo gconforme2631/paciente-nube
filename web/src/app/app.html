@@ -1,0 +1,180 @@
+<a class="saltar" href="#contenido">Saltar al contenido</a>
+
+<header class="barra">
+  <div class="barra__marca">
+    <span class="icono-caja" aria-hidden="true">
+      <svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14" /></svg>
+    </span>
+    <span>Citas médicas</span>
+  </div>
+</header>
+
+<main id="contenido">
+  <div class="encabezado">
+    <div>
+      <h1>Pacientes</h1>
+      <p class="subtitulo">Fichas administrativas de identificación y contacto.</p>
+    </div>
+    <button #btnNuevo type="button" class="boton boton--primario" (click)="abrirModal()">
+      <svg class="icono" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14" /></svg>
+      Registrar paciente
+    </button>
+  </div>
+
+  <!-- Invisible en pantalla: solo lo anuncian los lectores de pantalla (aria-live). -->
+  <p class="solo-lectores" role="status" aria-live="polite">{{ anuncio() }}</p>
+
+  <section class="tarjeta" aria-labelledby="titulo-tabla">
+    <div class="tarjeta__cabecera">
+      <h2 id="titulo-tabla">Pacientes registrados</h2>
+    </div>
+    <div class="tabla-contenedor">
+      <table>
+        <thead>
+          <tr>
+            <th scope="col">Identificación</th>
+            <th scope="col">Paciente</th>
+            <th scope="col">Nacimiento</th>
+            <th scope="col">Teléfono</th>
+            <th scope="col">Correo</th>
+            <th scope="col"><span class="solo-lectores">Acciones</span></th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (paciente of pacientes(); track paciente.id) {
+            <tr>
+              <td class="mono">{{ paciente.identificacion }}</td>
+              <td class="paciente__nombre">{{ paciente.nombres }} {{ paciente.apellidos }}</td>
+              <td class="sin-corte">{{ formatearFecha(paciente.fechaNacimiento) }}</td>
+              <td class="mono">{{ paciente.telefono }}</td>
+              <td>{{ paciente.correo }}</td>
+              <td>
+                <button type="button" class="boton boton--peligro" (click)="eliminar(paciente, btnNuevo)"
+                        [attr.aria-label]="'Eliminar a ' + paciente.nombres + ' ' + paciente.apellidos">
+                  Eliminar
+                </button>
+              </td>
+            </tr>
+          } @empty {
+            <tr>
+              <td class="vacio" colspan="6">
+                Aún no hay pacientes registrados. Use «Registrar paciente» para agregar el primero.
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  </section>
+</main>
+
+<dialog #modal class="modal" aria-labelledby="modal-titulo" aria-describedby="modal-descripcion"
+        (close)="btnNuevo.focus()" (click)="clicEnFondo($event)">
+  <form [formGroup]="formulario" (ngSubmit)="guardar()" novalidate>
+    <header class="modal__cabecera">
+      <span class="icono-caja" aria-hidden="true">
+        <svg viewBox="0 0 24 24">
+          <circle cx="12" cy="8" r="4" />
+          <path d="M4 21v-1a6 6 0 0 1 6-6h4a6 6 0 0 1 6 6v1" />
+        </svg>
+      </span>
+      <div>
+        <h2 id="modal-titulo">Registrar Nuevo Paciente</h2>
+        <p id="modal-descripcion">Ficha administrativa de identificación y contacto</p>
+      </div>
+      <button type="button" class="boton-cerrar" aria-label="Cerrar formulario" (click)="cerrarModal()">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18" /></svg>
+      </button>
+    </header>
+
+    <div class="modal__cuerpo">
+      <p class="nota">Los campos marcados con <span class="req" aria-hidden="true">*</span> son obligatorios.</p>
+
+      <div #resumen class="resumen-errores" role="alert" tabindex="-1" [hidden]="!errorGeneral()">
+        {{ errorGeneral() }}
+      </div>
+
+      <div class="campo">
+        <label for="identificacion">
+          <svg class="icono" viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2" /><path d="M3 10h18" /></svg>
+          Número de Identificación (Cédula / DNI)
+          <span class="req" aria-hidden="true">*</span>
+        </label>
+        <input id="identificacion" formControlName="identificacion" type="text" inputmode="numeric"
+               class="mono" placeholder="Ej: 1312345678" required maxlength="13"
+               aria-describedby="ayuda-identificacion error-identificacion"
+               [attr.aria-invalid]="errores().identificacion ? 'true' : null"
+               (input)="limpiarError('identificacion')" />
+        <p id="ayuda-identificacion" class="ayuda">Debe ser un número único para cada paciente.</p>
+        <p id="error-identificacion" class="error-campo">{{ errores().identificacion }}</p>
+      </div>
+
+      <div class="fila">
+        <div class="campo">
+          <label for="nombres">Nombres <span class="req" aria-hidden="true">*</span></label>
+          <input id="nombres" formControlName="nombres" type="text" placeholder="Ej: Valeria"
+                 autocomplete="given-name" required maxlength="80" aria-describedby="error-nombres"
+                 [attr.aria-invalid]="errores().nombres ? 'true' : null"
+                 (input)="limpiarError('nombres')" />
+          <p id="error-nombres" class="error-campo">{{ errores().nombres }}</p>
+        </div>
+        <div class="campo">
+          <label for="apellidos">Apellidos <span class="req" aria-hidden="true">*</span></label>
+          <input id="apellidos" formControlName="apellidos" type="text" placeholder="Ej: Gómez Zambrano"
+                 autocomplete="family-name" required maxlength="80" aria-describedby="error-apellidos"
+                 [attr.aria-invalid]="errores().apellidos ? 'true' : null"
+                 (input)="limpiarError('apellidos')" />
+          <p id="error-apellidos" class="error-campo">{{ errores().apellidos }}</p>
+        </div>
+      </div>
+
+      <div class="fila">
+        <div class="campo">
+          <label for="fechaNacimiento">
+            <svg class="icono" viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="2" /><path d="M3 10h18M8 3v4M16 3v4" /></svg>
+            Fecha de Nacimiento
+            <span class="req" aria-hidden="true">*</span>
+          </label>
+          <input id="fechaNacimiento" formControlName="fechaNacimiento" type="date" min="1900-01-01"
+                 [max]="hoy()" autocomplete="bday" required aria-describedby="error-fechaNacimiento"
+                 [attr.aria-invalid]="errores().fechaNacimiento ? 'true' : null"
+                 (input)="limpiarError('fechaNacimiento')" />
+          <p id="error-fechaNacimiento" class="error-campo">{{ errores().fechaNacimiento }}</p>
+        </div>
+        <div class="campo">
+          <label for="telefono">
+            <svg class="icono" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 4h4l2 5-2.5 1.5a11 11 0 0 0 5 5L15 13l5 2v4a2 2 0 0 1-2 2A16 16 0 0 1 3 6a2 2 0 0 1 2-2" /></svg>
+            Teléfono de Contacto
+            <span class="req" aria-hidden="true">*</span>
+          </label>
+          <input id="telefono" formControlName="telefono" type="tel" class="mono" placeholder="+593 99 123 4567"
+                 autocomplete="tel" required maxlength="20" aria-describedby="error-telefono"
+                 [attr.aria-invalid]="errores().telefono ? 'true' : null"
+                 (input)="limpiarError('telefono')" />
+          <p id="error-telefono" class="error-campo">{{ errores().telefono }}</p>
+        </div>
+      </div>
+
+      <div class="campo">
+        <label for="correo">
+          <svg class="icono" viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2" /><path d="M3 7l9 6 9-6" /></svg>
+          Correo Electrónico
+          <span class="req" aria-hidden="true">*</span>
+        </label>
+        <input id="correo" formControlName="correo" type="email" placeholder="valeria.gomez@example.com"
+               autocomplete="email" required maxlength="120" aria-describedby="error-correo"
+               [attr.aria-invalid]="errores().correo ? 'true' : null"
+               (input)="limpiarError('correo')" />
+        <p id="error-correo" class="error-campo">{{ errores().correo }}</p>
+      </div>
+    </div>
+
+    <footer class="modal__pie">
+      <button type="button" class="boton boton--texto" (click)="cerrarModal()">Cancelar</button>
+      <button type="submit" class="boton boton--primario" [disabled]="guardando()">
+        <svg class="icono" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9" /><path d="M8 12l3 3 5-6" /></svg>
+        Registrar Paciente
+      </button>
+    </footer>
+  </form>
+</dialog>

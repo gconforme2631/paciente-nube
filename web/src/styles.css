@@ -1,0 +1,38 @@
+/* Paleta: todos los textos cumplen contraste WCAG AA (≥ 4.5:1) sobre su fondo. */
+:root {
+  --primario: #1b6579;
+  --primario-oscuro: #134c5c;
+  --primario-suave: #e2eef2;
+  --texto: #1c2733;
+  --texto-suave: #4f5d6b;
+  --borde: #d5dde3;
+  --borde-campo: #7d8c99; /* ≥ 3:1 para límites de controles */
+  --fondo: #f3f6f8;
+  --superficie: #ffffff;
+  --requerido: #c62840;
+  --error: #b3261e;
+  --error-fondo: #fdecea;
+  --exito: #1e6b3a;
+  --exito-fondo: #e7f4ec;
+  --foco: #f2a900;
+  --radio: 10px;
+  --sombra: 0 20px 50px rgb(16 32 48 / 0.25);
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  font-family: 'Segoe UI', system-ui, -apple-system, Arial, sans-serif;
+  font-size: 15px;
+  color: var(--texto);
+  background: var(--fondo);
+}
+
+h1, h2, p { margin: 0; }
+
+/* Foco visible y consistente para navegación con teclado. */
+:focus-visible {
+  outline: 3px solid var(--foco);
+  outline-offset: 2px;
+}
