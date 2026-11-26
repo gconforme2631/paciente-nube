@@ -48,7 +48,11 @@
               <td class="sin-corte">{{ formatearFecha(paciente.fechaNacimiento) }}</td>
               <td class="mono">{{ paciente.telefono }}</td>
               <td>{{ paciente.correo }}</td>
-              <td>
+                            <td class="acciones">
+                <button type="button" class="boton boton--secundario" (click)="abrirModal(paciente)"
+                        [attr.aria-label]="'Editar a ' + paciente.nombres + ' ' + paciente.apellidos">
+                  Editar
+                </button>
                 <button type="button" class="boton boton--peligro" (click)="eliminar(paciente, btnNuevo)"
                         [attr.aria-label]="'Eliminar a ' + paciente.nombres + ' ' + paciente.apellidos">
                   Eliminar
@@ -79,7 +83,7 @@
         </svg>
       </span>
       <div>
-        <h2 id="modal-titulo">Registrar Nuevo Paciente</h2>
+                <h2 id="modal-titulo">{{ editandoId() === null ? 'Registrar Nuevo Paciente' : 'Editar Paciente' }}</h2>
         <p id="modal-descripcion">Ficha administrativa de identificación y contacto</p>
       </div>
       <button type="button" class="boton-cerrar" aria-label="Cerrar formulario" (click)="cerrarModal()">
@@ -173,7 +177,7 @@
       <button type="button" class="boton boton--texto" (click)="cerrarModal()">Cancelar</button>
       <button type="submit" class="boton boton--primario" [disabled]="guardando()">
         <svg class="icono" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9" /><path d="M8 12l3 3 5-6" /></svg>
-        Registrar Paciente
+        {{ editandoId() === null ? 'Registrar Paciente' : 'Guardar Cambios' }}
       </button>
     </footer>
   </form>

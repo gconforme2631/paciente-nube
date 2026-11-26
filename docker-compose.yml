@@ -1,0 +1,29 @@
+# Levanta en el computador la misma arquitectura que en la nube:
+# la API en un contenedor y PostgreSQL en otro.
+services:
+  db:
+    image: postgres:17-alpine
+    environment:
+      POSTGRES_DB: citas_medicas
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+    volumes:
+      - datos:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      interval: 5s
+      retries: 10
+
+  api:
+    build: ./api
+    environment:
+      PORT: 3000
+      DATABASE_URL: postgres://${DB_USER}:${DB_PASSWORD}@db:5432/citas_medicas
+    ports:
+      - "3000:3000"
+    depends_on:
+      db:
+        condition: service_healthy
+
+volumes:
+  datos:

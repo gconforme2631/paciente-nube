@@ -72,7 +72,16 @@ h1 { font-size: 1.6rem; }
   font-size: 0.875rem;
 }
 .boton--peligro:hover { background: var(--error-fondo); }
-
+  .boton--secundario {
+  padding: 6px 12px;
+  background: transparent;
+  color: var(--primario);
+  border: 1px solid currentColor;
+  font-size: 0.875rem;
+}
+.boton--secundario:hover { background: var(--primario-suave); }
+td.acciones { white-space: nowrap; }
+.acciones .boton + .boton { margin-left: 8px; }
 /* ---------- Tabla ---------- */
 .tarjeta {
   margin-top: 20px;

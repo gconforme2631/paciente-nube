@@ -33,6 +33,10 @@ export class PacienteApi {
     return this.http.post<Paciente>(this.url, paciente);
   }
 
+  actualizar(id: number, paciente: NuevoPaciente) {
+    return this.http.put<Paciente>(`${this.url}/${id}`, paciente);
+  }
+
   eliminar(id: number) {
     return this.http.delete<void>(`${this.url}/${id}`);
   }

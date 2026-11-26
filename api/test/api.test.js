@@ -32,6 +32,12 @@ const enviar = (paciente) => fetch(url, {
   body: JSON.stringify(paciente),
 });
 
+const actualizar = (id, paciente) => fetch(`${url}/${id}`, {
+  method: 'PUT',
+  headers: { 'Content-Type': 'application/json' },
+  body: JSON.stringify(paciente),
+});
+
 test('POST registra un paciente válido y responde 201', async () => {
   const respuesta = await enviar(pacienteValido);
   assert.equal(respuesta.status, 201);
@@ -63,4 +69,22 @@ test('DELETE elimina el paciente y luego responde 404', async () => {
   const [paciente] = await (await fetch(url)).json();
   assert.equal((await fetch(`${url}/${paciente.id}`, { method: 'DELETE' })).status, 204);
   assert.equal((await fetch(`${url}/${paciente.id}`, { method: 'DELETE' })).status, 404);
+});
+
+test('PUT actualiza un paciente y responde 200', async () => {
+  const nuevo = { ...pacienteValido, identificacion: '0912345678' };
+  const creado = await (await enviar(nuevo)).json();
+  const respuesta = await actualizar(creado.id, { ...nuevo, telefono: '0991234567' });
+  assert.equal(respuesta.status, 200);
+  assert.equal((await respuesta.json()).telefono, '0991234567');
+});
+
+test('PUT responde 404 si el paciente no existe', async () => {
+  assert.equal((await actualizar(9999, pacienteValido)).status, 404);
+});
+
+test('GET /api/salud responde 200 con estado ok', async () => {
+  const respuesta = await fetch(url.replace('/pacientes', '/salud'));
+  assert.equal(respuesta.status, 200);
+  assert.deepEqual(await respuesta.json(), { estado: 'ok' });
 });

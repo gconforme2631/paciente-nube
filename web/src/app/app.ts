@@ -1,4 +1,4 @@
-// Componente principal: lista de pacientes y modal de registro.
+// Componente principal: lista de pacientes y modal de registro/edición.
 import { Component, ElementRef, OnInit, inject, signal, viewChild } from '@angular/core';
 import { HttpErrorResponse } from '@angular/common/http';
 import { FormBuilder, ReactiveFormsModule } from '@angular/forms';
@@ -26,6 +26,7 @@ export class App implements OnInit {
   protected readonly errorGeneral = signal('');
   protected readonly guardando = signal(false);
   protected readonly hoy = signal(this.fechaHoy());
+  protected readonly editandoId = signal<number | null>(null); // null = registro nuevo
 
   protected readonly formulario = this.fb.nonNullable.group({
     identificacion: '',
@@ -48,10 +49,17 @@ export class App implements OnInit {
   }
 
   // ---------- Modal ----------
-  protected abrirModal() {
+  protected abrirModal(paciente?: Paciente) {
     const dialogo = this.modal().nativeElement;
     if (dialogo.open) return;
     this.formulario.reset();
+    if (paciente) {
+      const { id, ...datos } = paciente;
+      this.formulario.setValue(datos);
+      this.editandoId.set(id);
+    } else {
+      this.editandoId.set(null);
+    }
     this.limpiarErrores();
     this.hoy.set(this.fechaHoy());
     dialogo.showModal();
@@ -102,13 +110,16 @@ export class App implements OnInit {
   // ---------- Acciones ----------
   protected guardar() {
     const datos = this.formulario.getRawValue();
+    const id = this.editandoId();
+    const peticion = id === null ? this.api.agregar(datos) : this.api.actualizar(id, datos);
+    const accion = id === null ? 'registrado' : 'actualizado';
     this.guardando.set(true);
 
-    this.api.agregar(datos).subscribe({
+    peticion.subscribe({
       next: () => {
         this.guardando.set(false);
         this.cerrarModal();
-        this.anuncio.set(`Paciente ${datos.nombres.trim()} ${datos.apellidos.trim()} registrado.`);
+        this.anuncio.set(`Paciente ${datos.nombres.trim()} ${datos.apellidos.trim()} ${accion}.`);
         this.cargar();
       },
       error: (respuesta: HttpErrorResponse) => {
