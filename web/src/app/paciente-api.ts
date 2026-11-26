@@ -23,7 +23,7 @@ export interface ErrorCampo {
 @Injectable({ providedIn: 'root' })
 export class PacienteApi {
   private readonly http = inject(HttpClient);
-  private readonly url = 'http://localhost:3000/api/pacientes';
+  private readonly url = 'https://paciente-api.onrender.com/api/pacientes';
 
   listar() {
     return this.http.get<Paciente[]>(this.url);

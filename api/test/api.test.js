@@ -86,5 +86,5 @@ test('PUT responde 404 si el paciente no existe', async () => {
 test('GET /api/salud responde 200 con estado ok', async () => {
   const respuesta = await fetch(url.replace('/pacientes', '/salud'));
   assert.equal(respuesta.status, 200);
-  assert.deepEqual(await respuesta.json(), { estado: 'ok' });
+  assert.deepEqual(await respuesta.json(), { estado: 'ok', version: '1.1' });
 });

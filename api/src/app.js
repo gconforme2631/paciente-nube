@@ -26,7 +26,7 @@ const leerId = (texto) => {
 
 // GET /api/salud → health check de la plataforma
 app.get('/api/salud', (_req, res) => {
-  res.json({ estado: 'ok' });
+  res.json({ estado: 'ok', version: '1.1' });
 });
 
 // GET /api/pacientes → lista de pacientes
